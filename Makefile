@@ -12,11 +12,9 @@ CXX     = g++
 MPICC   = mpicxx
 
 FFLAGS  = -O3 -fopenmp -fdefault-real-8 -Wall -Wextra \
-          -Wno-unused-dummy-argument -fcheck=all
+          -Wno-unused-dummy-argument 
 CXXFLAGS= -O3 -fopenmp -std=c++17 -Wall -Wextra -Iinclude
-GFORT_LIB := $(shell gfortran -print-file-name=libgfortran.a)
-QUAD_LIB  := $(shell gfortran -print-file-name=libquadmath.a)
-LDFLAGS    = -fopenmp -Wl,--start-group $(GFORT_LIB) $(QUAD_LIB) -Wl,--end-group -lgomp -lm
+LDFLAGS = -fopenmp -lgfortran -lquadmath -lgomp -lm
 
 # Module output directory (current dir for simplicity)
 MODDIR  = .
@@ -210,3 +208,4 @@ help:
 	@echo "    make sweep-mpi"
 	@echo "    [download results/] then: make plots"
 	@echo ""
+

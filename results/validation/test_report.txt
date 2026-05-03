@@ -1,0 +1,9 @@
+=== SolarHPC Validation Test Report ===
+Tests passed: 5 / 6
+
+TEST 1 Two-body orbit (1yr): PASS    109045.8 km position error
+TEST 2 Hohmann Earth-Mars:  PASS   0.103 % dv error
+TEST 3 Tsiolkovsky:         PASS    0.0001 % fuel error
+TEST 4 Energy conservation: FAIL 3.152+355 % drift in 1yr
+TEST 5 JD conversion:       PASS 0.000E+00 days error
+TEST 6 Force unit:          PASS

@@ -79,19 +79,21 @@ def fetch_body(name, naif_id):
     #             line 1 = X, Y, Z, VX, VY, VZ, ...
     # Some API versions put X,Y,Z on line 1 and VX,VY,VZ on line 2
     # We extract all floats from lines 1 and 2 and take first 6.
+    # Extract floats from ALL lines inside the block
     all_floats = []
-    for line in lines[1:3]:
-        # Remove labels like "X =" and extract numbers
+    for line in lines:
         nums = re.findall(r'[-+]?\d+\.\d+[Ee]?[-+]?\d*', line)
         all_floats.extend([float(n) for n in nums])
 
-    if len(all_floats) < 6:
+    # Expect: JD + 6 values = at least 7 floats
+    if len(all_floats) < 7:
         print(f"  [ERROR] Could not parse 6 state vector components for {name}")
         print(f"  Parsed floats: {all_floats}")
         print(f"  Raw block:\n{block[:300]}")
         sys.exit(1)
 
-    x, y, z, vx, vy, vz = all_floats[:6]
+    # Skip JD, take next 6 values
+    x, y, z, vx, vy, vz = all_floats[1:7]
     return x, y, z, vx, vy, vz
 
 
@@ -128,3 +130,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

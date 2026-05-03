@@ -103,13 +103,13 @@ int main(int argc, char** argv)
     std::vector<double> pos0(pos), vel0(vel);
 
     /* ── Stage 3: Validation tests (rank 0) ──────────────── */
-    if (!cfg.benchmark_only && rank == 0) {
+    if (!cfg.benchmark_only && !cfg.dry_run && rank == 0) {
         int all_passed=0, n_passed=0, n_total=0;
         validation_suite__run_all_tests_(pos0.data(), vel0.data(), mass.data(),
                                           &all_passed, &n_passed, &n_total);
         std::cout << "  [VALIDATION] " << n_passed << "/" << n_total
                   << " tests passed\n\n";
-        if (rank == 0) write_run_metadata(cfg, n_ranks, max_threads);
+        write_run_metadata(cfg, n_ranks, max_threads);
     }
 
     /* ── dry-run exits here ────────────────────────────────── */
@@ -269,3 +269,4 @@ int main(int argc, char** argv)
     MPI_Finalize();
     return 0;
 }
+

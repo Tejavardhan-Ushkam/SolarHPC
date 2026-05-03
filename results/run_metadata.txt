@@ -1,0 +1,14 @@
+=== SolarHPC Run Metadata ===
+Timestamp        : 2026-05-03 13:28:52 UTC
+Hostname         : n199.cluster.iitmandi.ac.in
+Git commit       : d45591d
+MPI ranks        : 4
+OMP threads (max): 8
+Compiler flags   : -O3 -fopenmp -fdefault-real-8
+Target body      : Moon
+Mission mode     : Hohmann
+Launch site      : ISRO_SRIHARIKOTA
+Spacecraft mass  : 5000 kg
+Sim years        : 2
+Timestep         : 1 day
+Perturbations    : OFF

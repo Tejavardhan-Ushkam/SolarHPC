@@ -15,13 +15,17 @@ MODULE eclipse_geom
   IMPLICIT NONE
 
   ! Eclipse event record
-  TYPE :: EclipseEvent
+INTEGER, PARAMETER :: MAX_EVENTS = 5000
+
+TYPE :: EclipseEvent
     REAL(dp) :: jd
-    INTEGER  :: eclipse_type    ! 0=solar, 1=lunar
-    INTEGER  :: event_class     ! 1=partial, 2=total, 3=annular
+    INTEGER  :: eclipse_type
+    INTEGER  :: event_class
     REAL(dp) :: umbra_fraction
     REAL(dp) :: duration_min
-  END TYPE EclipseEvent
+END TYPE EclipseEvent
+   ! 0=solar, 1=lunar
+   ! 1=partial, 2=total, 3=annular
 
 CONTAINS
 
@@ -162,16 +166,19 @@ CONTAINS
     REAL(dp), INTENT(IN)  :: dt_days, t_start_jd
     INTEGER,  INTENT(OUT) :: n_solar, n_lunar
 
-    INTEGER,  PARAMETER  :: MAX_EVENTS = 5000
-    TYPE(EclipseEvent)   :: events(MAX_EVENTS)
-    INTEGER              :: n_events
+    INTEGER, PARAMETER :: MAX_EVENTS = 5000
+    TYPE(EclipseEvent), ALLOCATABLE :: events(:)
 
-    INTEGER  :: i, flag_s, flag_l, unit_csv, ios
+    INTEGER :: n_events
+    INTEGER :: i, flag_s, flag_l, unit_csv, ios
     REAL(dp) :: uf_s, uf_l, dur_s, dur_l, jd_i
     REAL(dp) :: last_solar_jd, last_lunar_jd
-    INTEGER  :: yr, mo, dy, hr, mn
+    INTEGER :: yr, mo, dy, hr, mn
     REAL(dp) :: sc
     CHARACTER(LEN=20) :: date_str
+
+    ! Allocate safely (heap instead of stack)
+    ALLOCATE(events(MAX_EVENTS))
 
     n_events      = 0
     n_solar       = 0
@@ -179,42 +186,41 @@ CONTAINS
     last_solar_jd = -1.0d10
     last_lunar_jd = -1.0d10
 
-    ! Note: the loop is over timesteps. Eclipse detection is fast
-    ! (pure arithmetic), so we parallelise but use CRITICAL for output.
     !$OMP PARALLEL DO PRIVATE(i, flag_s, flag_l, uf_s, uf_l, dur_s, dur_l, jd_i) &
-    !$OMP&            SCHEDULE(STATIC) DEFAULT(SHARED)
+    !$OMP& SCHEDULE(STATIC)
     DO i = 1, n_steps
       jd_i = t_start_jd + REAL(i-1, dp) * dt_days
 
       CALL check_solar_eclipse(pos_history(:,:,i), flag_s, uf_s, dur_s)
       CALL check_lunar_eclipse(pos_history(:,:,i), flag_l, uf_l, dur_l)
 
-      !$OMP CRITICAL(eclipse_write)
+      !$OMP CRITICAL
       IF (flag_s > 0 .AND. (jd_i - last_solar_jd) > MIN_ECLIPSE_SEPARATION_DAYS) THEN
         IF (n_events < MAX_EVENTS) THEN
           n_events = n_events + 1
-          events(n_events)%jd            = jd_i
-          events(n_events)%eclipse_type  = 0
-          events(n_events)%event_class   = flag_s
-          events(n_events)%umbra_fraction= uf_s
-          events(n_events)%duration_min  = dur_s
-          n_solar       = n_solar + 1
+          events(n_events)%jd = jd_i
+          events(n_events)%eclipse_type = 0
+          events(n_events)%event_class = flag_s
+          events(n_events)%umbra_fraction = uf_s
+          events(n_events)%duration_min = dur_s
+          n_solar = n_solar + 1
           last_solar_jd = jd_i
         END IF
       END IF
+
       IF (flag_l > 0 .AND. (jd_i - last_lunar_jd) > MIN_ECLIPSE_SEPARATION_DAYS) THEN
         IF (n_events < MAX_EVENTS) THEN
           n_events = n_events + 1
-          events(n_events)%jd            = jd_i
-          events(n_events)%eclipse_type  = 1
-          events(n_events)%event_class   = flag_l
-          events(n_events)%umbra_fraction= uf_l
-          events(n_events)%duration_min  = dur_l
-          n_lunar       = n_lunar + 1
+          events(n_events)%jd = jd_i
+          events(n_events)%eclipse_type = 1
+          events(n_events)%event_class = flag_l
+          events(n_events)%umbra_fraction = uf_l
+          events(n_events)%duration_min = dur_l
+          n_lunar = n_lunar + 1
           last_lunar_jd = jd_i
         END IF
       END IF
-      !$OMP END CRITICAL(eclipse_write)
+      !$OMP END CRITICAL
     END DO
     !$OMP END PARALLEL DO
 
@@ -222,10 +228,12 @@ CONTAINS
     unit_csv = 55
     OPEN(UNIT=unit_csv, FILE='results/eclipses/eclipse_predictions.csv', &
          STATUS='REPLACE', ACTION='WRITE', IOSTAT=ios)
+
     IF (ios /= 0) THEN
       WRITE(*,*) '[ERROR] Cannot write eclipse_predictions.csv'
       RETURN
     END IF
+
     WRITE(unit_csv,'(A)') &
       'julian_day,gregorian_date,eclipse_type,event_class,umbra_fraction,duration_minutes'
 
@@ -237,9 +245,12 @@ CONTAINS
         events(i)%eclipse_type, ',', events(i)%event_class, ',', &
         events(i)%umbra_fraction, ',', events(i)%duration_min
     END DO
-    CLOSE(unit_csv)
-  END SUBROUTINE scan_eclipses_omp
 
+    CLOSE(unit_csv)
+
+    IF (ALLOCATED(events)) DEALLOCATE(events)
+
+  END SUBROUTINE scan_eclipses_omp
   ! ----------------------------------------------------------
   ! verify_eclipse_2024: check 2024-Apr-08 total solar eclipse
   ! ----------------------------------------------------------

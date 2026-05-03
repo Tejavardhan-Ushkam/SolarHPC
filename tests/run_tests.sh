@@ -19,7 +19,7 @@ run_test() {
   fi
 
   printf "  %-45s " "$name ..."
-  if "$exe" > /tmp/solarhpc_test_out.txt 2>&1; then
+  if bash -c "$exe" > /tmp/solarhpc_test_out.txt 2>&1; then
     echo "PASS"
     PASS=$((PASS+1))
   else
@@ -44,7 +44,7 @@ run_test "Eclipse geometry + JD"       tests/test_eclipse
 run_test "Energy conservation (10yr)"  tests/test_energy    "yes"
 
 if [ -f "./solarhpc" ]; then
-  run_test "Simulation dry-run"        "./solarhpc --dry-run" "yes"
+  run_test "Simulation dry-run" "cd .. && ./solarhpc --dry-run" "yes"
 else
   echo "  SKIP  Simulation dry-run (run 'make all' first)"
   SKIP=$((SKIP+1))
