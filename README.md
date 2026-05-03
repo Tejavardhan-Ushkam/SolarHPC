@@ -6,8 +6,7 @@
 
 A high-performance parallel simulator for solar system orbital
 dynamics, eclipse prediction, and spacecraft trajectory
-optimisation.  Built for the HPSC course project and designed
-to research-publication standard.
+optimisation. 
 
 ---
 
@@ -24,18 +23,6 @@ to research-publication standard.
 - **Benchmarks parallel performance** — 5 OpenMP kernels across
   {1,2,4,8,16} threads and 1 MPI kernel across {1,2,4,8} ranks,
   with Amdahl-law fitting and publication-quality figures
-
----
-
-## Requirements
-
-| Tool | Version | Purpose |
-|------|---------|---------|
-| gfortran | ≥ 10 | Fortran kernel compilation |
-| g++ | ≥ 10 | C++ orchestration |
-| OpenMPI | ≥ 4.0 | MPI parallelism |
-| Python | ≥ 3.8 | Data fetch + plotting |
-| numpy, matplotlib, pandas, requests, scipy | latest | Python deps |
 
 ---
 
@@ -135,7 +122,7 @@ mpirun -np 4 ./solarhpc \
                               #    ESA_KOUROU, JAXA_TANEGASHIMA
   --target=MOON              # or MARS
   --mode=HOHMANN             # or GRAVITY_ASSIST
-  --mass=5000                # spacecraft wet mass (kg)
+  --mass=5000                # spacecraft net mass (kg)
   --payload=1000             # payload mass (kg)
   --years=2                  # simulation duration
   --perturb                  # enable J2 + GR corrections
@@ -157,7 +144,7 @@ python3 plots/plot_orbits.py           # orbital trajectories
 python3 plots/plot_eclipse_timeline.py # eclipse timeline + Saros
 python3 plots/plot_validation.py       # energy drift, ephemeris error
 python3 plots/plot_mission.py          # launch window, landing zone
-python3 plots/generate_tables.py       # LaTeX tables for paper
+python3 plots/generate_tables.py       
 ```
 
 All figures saved to `plots/output/` as both `.pdf` and `.png`.
@@ -168,35 +155,8 @@ LaTeX tables saved to `docs/paper/tables/`.
 ## Git workflow (8 commit stages)
 
 ```bash
-# Stage 0 — Initial scaffold
-git init && git add . && git commit -m "Stage 0: project scaffold"
 
-# Stage 1 — After data fetch
-git add data/ && git commit -m "Stage 1: JPL initial conditions"
 
-# Stage 2 — After successful make all
-git add src/ include/ Makefile && git commit -m "Stage 2: build passes"
-
-# Stage 3 — After all tests pass
-git add tests/ results/validation/ && git commit -m "Stage 3: tests pass"
-
-# Stage 4 — After simulation run
-git add results/ && git commit -m "Stage 4: simulation results"
-
-# Stage 5 — After benchmark sweep
-git add results/benchmarks/ && git commit -m "Stage 5: benchmark data"
-
-# Stage 6 — After plots generated
-git add plots/ docs/paper/tables/ && git commit -m "Stage 6: figures"
-
-# Stage 7 — Paper draft complete
-git add docs/ && git commit -m "Stage 7: paper draft"
-
-# Stage 8 — Final submission
-git add . && git commit -m "Stage 8: final submission"
-```
-
----
 
 ## Physical validation results
 
@@ -214,18 +174,3 @@ git add . && git commit -m "Stage 8: final submission"
 
 ---
 
-## Citation
-
-If you use this code in published work, please cite:
-
-```bibtex
-@article{solarhpc2025,
-  author  = {[Author Name]},
-  title   = {Parallel N-body Solar System Simulation for Eclipse
-             Prediction and Spacecraft Trajectory Optimisation:
-             An OpenMP/MPI Performance Study},
-  journal = {[Journal Name]},
-  year    = {2025},
-  note    = {Source: https://github.com/[username]/SolarHPC}
-}
-```
