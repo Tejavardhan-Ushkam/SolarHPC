@@ -128,32 +128,6 @@ mpirun -np 4 ./solarhpc \
   --perturb                  # enable J2 + GR corrections
 ```
 
----
-
-## Reproducing paper figures
-
-After downloading `results/` from the cluster:
-
-```bash
-# All figures at once
-make plots
-
-# Individual scripts
-python3 plots/plot_benchmarks.py       # speedup, efficiency, Amdahl
-python3 plots/plot_orbits.py           # orbital trajectories
-python3 plots/plot_eclipse_timeline.py # eclipse timeline + Saros
-python3 plots/plot_validation.py       # energy drift, ephemeris error
-python3 plots/plot_mission.py          # launch window, landing zone
-python3 plots/generate_tables.py       
-```
-
-All figures saved to `plots/output/` as both `.pdf` and `.png`.
-LaTeX tables saved to `docs/paper/tables/`.
-
----
-
-## Git workflow (8 commit stages)
-
 ```bash
 
 
