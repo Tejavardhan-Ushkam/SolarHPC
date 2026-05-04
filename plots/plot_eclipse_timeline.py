@@ -93,11 +93,11 @@ def plot_timeline(df):
     # ── Top panel: full timeline ──────────────────────────────
     # Solar eclipses: above x-axis
     sc_top = ax_top.scatter(solar['year'], solar['umbra_fraction'],
-                             c='#d62728', s=solar['umbra_fraction']*40+5,
+                             c='#d62728', s=40,
                              marker='^', label='Solar eclipse', zorder=4, alpha=0.8)
     # Lunar eclipses: below x-axis
     sc_bot = ax_top.scatter(lunar['year'], -lunar['umbra_fraction']*0.6,
-                             c='#1f77b4', s=lunar['umbra_fraction']*30+5,
+                             c='#1f77b4', s=30,
                              marker='o', label='Lunar eclipse', zorder=4, alpha=0.7)
 
     # Mark 2024-04-08 validation point if in range

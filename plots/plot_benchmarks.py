@@ -196,12 +196,16 @@ def plot_absolute_time(df):
     width    = 0.8 / n_t
 
     for ti, nt in enumerate(threads):
-        sub  = df[df['n_threads'] == nt].set_index('kernel_name')
-        vals = [sub.loc[k,'mean_sec']   if k in sub.index else 0.0 for k in kernels]
-        errs = [sub.loc[k,'stddev_sec'] if k in sub.index else 0.0 for k in kernels]
-        bars = ax.bar(x + (ti - n_t/2 + 0.5)*width, vals, width*0.9,
-                      label=f'{nt} threads', hatch=hatches[ti%5],
-                      yerr=errs, capsize=2, error_kw={'linewidth':0.8})
+        sub  = df[df['n_threads'] == nt]
+        vals = []
+        errs = []
+        for k in kernels:
+            row = sub[sub['kernel_name'] == k]
+            vals.append(float(row['mean_sec'].values[0])   if len(row) else 0.0)
+            errs.append(float(row['stddev_sec'].values[0]) if len(row) else 0.0)
+        ax.bar(x + (ti - n_t/2 + 0.5)*width, vals, width*0.9,
+               label=f'{nt} threads', hatch=hatches[ti%5],
+               yerr=errs, capsize=2, error_kw={'linewidth':0.8})
 
     ax.set_yscale('log')
     ax.set_xticks(x)
@@ -215,7 +219,6 @@ def plot_absolute_time(df):
         fig.savefig(f'{OUT}/fig_absolute_time.{ext}')
     plt.close(fig)
     print(f'  [OK] fig_absolute_time')
-
 
 # ── Figure 4: MPI scaling ─────────────────────────────────────
 def plot_mpi_scaling(mpi_df):

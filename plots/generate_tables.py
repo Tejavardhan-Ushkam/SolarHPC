@@ -36,6 +36,9 @@ def write_table(filename, content):
 
 # ── Table 1: OpenMP benchmark summary ────────────────────────
 def make_benchmark_table():
+    def safe(x):
+        return float(x.iloc[0]) if hasattr(x, 'iloc') else float(x)
+
     def synth():
         knames = ['force_computation','leapfrog_step','rk4_step',
                   'eclipse_scan','trajectory_prop']
@@ -95,9 +98,9 @@ def make_benchmark_table():
     for _, r in df2.iterrows():
         kname = r['kernel_name'].replace('_', r'\_')
         lines.append(
-            f"{kname} & {r['mean_sec_1']:.4f} & {r['mean_sec_16']:.4f} & "
-            f"{r['speedup_16']:.2f} & {r['efficiency_pct_16']:.1f} & "
-            f"{r['serial_fraction']:.3f} \\\\"
+            f"{kname} & {safe(r['mean_sec_1'].iloc[0] if hasattr(r['mean_sec_1'], 'iloc') else r['mean_sec_1']):.4f} & {safe(r['mean_sec_16'].iloc[0] if hasattr(r['mean_sec_16'], 'iloc') else r['mean_sec_16']):.4f} & "
+            f"{safe(r['speedup_16']):.2f} & {safe(r['efficiency_pct_16']):.1f} & "
+            f"{safe(r['serial_fraction']):.3f} \\\\"
         )
     lines.append(r'\bottomrule')
     lines.append(r'\end{tabular}')
@@ -134,7 +137,7 @@ def make_mission_table():
     lines.append(r'\midrule')
     for _, r in df.iterrows():
         tgt  = str(r.get('target_body','?'))
-        mode = str(r.get('mission_mode','?')).replace('GravityAssist', 'Grav.\ assist')
+        mode = str(r.get('mission_mode','?')).replace('GravityAssist', r'Grav.\ assist')
         lines.append(
             f"{tgt} & {mode} & "
             f"{r.get('dv_total_SI',0):.0f} & "
